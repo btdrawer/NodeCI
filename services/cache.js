@@ -1,7 +1,7 @@
-const mongoose = require('mongoose');
-const redis = require('redis');
-const { promisify } = require('util');
-const { redisUrl } = require('../config/keys');
+const mongoose = require("mongoose");
+const redis = require("redis");
+const { promisify } = require("util");
+const { redisUrl } = require("../config/keys");
 
 const client = redis.createClient(redisUrl);
 client.hget = promisify(client.hget);
@@ -10,9 +10,9 @@ const exec = mongoose.Query.prototype.exec;
 
 mongoose.Query.prototype.cache = async function (options = {}) {
     this.useCache = true;
-    this.hashKey = JSON.stringify(options.key) || '';
+    this.hashKey = JSON.stringify(options.key) || "";
     return this;
-}
+};
 
 mongoose.Query.prototype.exec = async function () {
     if (!this.useCache) {
@@ -20,20 +20,20 @@ mongoose.Query.prototype.exec = async function () {
     }
     const key = JSON.stringify({
         ...this.getQuery(),
-        collection: this.mongooseCollection.name
+        collection: this.mongooseCollection.name,
     });
     const cachedValue = await client.hget(this.hashKey, key);
     if (cachedValue) {
         const doc = JSON.parse(cachedValue);
-        return Array.isArray(doc) 
-            ? doc.map(d => new this.model(d))
+        return Array.isArray(doc)
+            ? doc.map((d) => new this.model(d))
             : new this.model(doc);
     }
     const result = await exec.apply(this, arguments);
-    client.set(key, JSON.stringify(result), 'EX', 10);
+    client.set(key, JSON.stringify(result), "EX", 10);
     return result;
 };
 
 module.exports = {
-    clearHash: hashKey => client.del(JSON.stringify(hashKey))
+    clearHash: (hashKey) => client.del(JSON.stringify(hashKey)),
 };

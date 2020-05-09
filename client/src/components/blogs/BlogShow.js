@@ -9,7 +9,10 @@ class BlogShow extends Component {
 
     renderImage() {
         if (this.props.blog.imageUrl) {
-            return <img src={`https://btdrawer-nodejs-advanced-concepts-app.s3.eu-west-2.amazonaws.com/${this.props.blog.imageUrl}`} />;
+            return <img 
+                src={`https://btdrawer-nodejs-advanced-concepts-app.s3.eu-west-2.amazonaws.com/${this.props.blog.imageUrl}`} 
+                alt="Blog image"
+            />;
         }
     }
 
